@@ -52,3 +52,12 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+bin/
+obj/
+/packages/
+riderModule.iml
+/_ReSharper.Caches/
+.idea/
+ShevaTahanotNotifier/Logs/
+ShevaTahanotNotifier/appsettings.Development.json
+ShevaTahanotNotifier/ShevaTahanotNotifier.db
