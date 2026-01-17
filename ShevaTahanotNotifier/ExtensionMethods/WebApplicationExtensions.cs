@@ -20,7 +20,6 @@ public static class WebApplicationExtensions
     {
         await using AsyncServiceScope scope = services.CreateAsyncScope();
         var context = scope.ServiceProvider.GetRequiredService<NotifierContext>();
-        await context.Database.EnsureCreatedAsync(cancellationToken);
-        await context.Database.MigrateAsync(cancellationToken: cancellationToken);
+        await context.Database.MigrateAsync(cancellationToken);
     }
 }
