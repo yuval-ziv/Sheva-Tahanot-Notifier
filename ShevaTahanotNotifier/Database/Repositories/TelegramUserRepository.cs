@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using ShevaTahanotNotifier.Database;
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Entities.NotificationProviderConfiguration;
 
-namespace ShevaTahanotNotifier.Repositories;
+namespace ShevaTahanotNotifier.Database.Repositories;
 
 public class TelegramUserRepository : UserRepository, ITelegramUserRepository
 {

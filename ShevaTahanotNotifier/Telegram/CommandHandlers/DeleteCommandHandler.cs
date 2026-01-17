@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Entities.NotificationProviderConfiguration;
-using ShevaTahanotNotifier.Repositories;
+using ShevaTahanotNotifier.Database.Repositories;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ShevaTahanotNotifier.Database.Entities.User;

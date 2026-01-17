@@ -1,7 +1,7 @@
 using ShevaTahanotNotifier.Database.Entities;
-using ShevaTahanotNotifier.Repositories.Abstract;
+using ShevaTahanotNotifier.Database.Repositories.Abstract;
 
-namespace ShevaTahanotNotifier.Repositories;
+namespace ShevaTahanotNotifier.Database.Repositories;
 
 public interface INotificationScheduleRepository : IGenericRepository<NotificationSchedule>
 {

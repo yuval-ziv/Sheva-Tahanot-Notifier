@@ -1,4 +1,3 @@
-using EnumsNET;
 using Microsoft.EntityFrameworkCore;
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Repositories;
@@ -9,29 +8,29 @@ using User = ShevaTahanotNotifier.Database.Entities.User;
 
 namespace ShevaTahanotNotifier.Telegram.CommandHandlers;
 
-public class AddNotificationScheduleCommandHandler : ICommandHandler
+public class RemoveNotificationScheduleCommandHandler : ICommandHandler
 {
-    private readonly ILogger<AddNotificationScheduleCommandHandler> _logger;
+    private readonly ILogger<RemoveNotificationScheduleCommandHandler> _logger;
     private readonly ITelegramBotClient _bot;
     private readonly ITelegramUserRepository _telegramUserRepository;
     private readonly INotificationScheduleRepository _notificationScheduleRepository;
 
-    public AddNotificationScheduleCommandHandler(ILogger<AddNotificationScheduleCommandHandler> logger, ITelegramBotClient bot, ITelegramUserRepository telegramUserRepository,
+    public RemoveNotificationScheduleCommandHandler(ILogger<RemoveNotificationScheduleCommandHandler> logger, ITelegramBotClient bot, ITelegramUserRepository telegramUserRepository,
         INotificationScheduleRepository notificationScheduleRepository)
     {
         _logger = logger;
-        _bot = bot;
         _telegramUserRepository = telegramUserRepository;
         _notificationScheduleRepository = notificationScheduleRepository;
+        _bot = bot;
     }
 
-    public string Command => "/add";
-    public string Description => "adds a new notification schedule";
+    public string Command => "/remove";
+    public string Description => "removes a notification schedule";
 
     public async Task<Message> HandleCommandAsync(Message message, CancellationToken cancellationToken = default)
     {
         long chatId = message.Chat.Id;
-        _logger.LogDebug("Handling add notification schedule command from {ChatId}", chatId);
+        _logger.LogDebug("Handling remove notification schedule command from {ChatId}", chatId);
 
         List<User> users = await _telegramUserRepository.GetAllByChatId(chatId).ToListAsync(cancellationToken);
 
@@ -41,7 +40,7 @@ public class AddNotificationScheduleCommandHandler : ICommandHandler
             return await _bot.SendMessage(chatId, $"User {message.From?.Username} is not registered", cancellationToken: cancellationToken);
         }
 
-        IEnumerable<InlineKeyboardButton> buttons = Enums.GetValues<DayOfWeek>().Select(day => ToButton(chatId, day));
+        IEnumerable<InlineKeyboardButton> buttons = users.SelectMany(user => user.NotificationSchedules ?? Enumerable.Empty<NotificationSchedule>()).Select(schedule => ToButton(chatId, schedule));
 
         InlineKeyboardMarkup keyboard = new()
         {
@@ -53,11 +52,12 @@ public class AddNotificationScheduleCommandHandler : ICommandHandler
         return await _bot.SendMessage(chatId, $"Choose a notification to remove", replyMarkup: keyboard, cancellationToken: cancellationToken);
     }
 
-    private InlineKeyboardButton ToButton(long chatId, DayOfWeek day)
+    private InlineKeyboardButton ToButton(long chatId, NotificationSchedule notificationSchedule)
     {
-        return new InlineKeyboardButton()
+        return new InlineKeyboardButton
         {
-            Text = ""
+            Text = $"{notificationSchedule.DayOfWeek} - {notificationSchedule.Hour}:{notificationSchedule.Minute}",
+            CallbackData = $"delete_{chatId}_{notificationSchedule.Id}",
         };
     }
 }

@@ -1,4 +1,4 @@
-namespace ShevaTahanotNotifier.Repositories.Abstract;
+namespace ShevaTahanotNotifier.Database.Repositories.Abstract;
 
 public enum DeleteResult
 {

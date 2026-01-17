@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using ShevaTahanotNotifier.Database;
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.ExtensionMethods;
 
-namespace ShevaTahanotNotifier.Repositories.Abstract;
+namespace ShevaTahanotNotifier.Database.Repositories.Abstract;
 
 public abstract class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
 {

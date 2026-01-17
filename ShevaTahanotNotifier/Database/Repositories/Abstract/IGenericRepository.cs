@@ -1,6 +1,6 @@
 using ShevaTahanotNotifier.Database.Entities;
 
-namespace ShevaTahanotNotifier.Repositories.Abstract;
+namespace ShevaTahanotNotifier.Database.Repositories.Abstract;
 
 public interface IGenericRepository<T> where T : BaseEntity
 {

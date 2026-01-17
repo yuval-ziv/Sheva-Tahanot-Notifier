@@ -1,6 +1,6 @@
 using ShevaTahanotNotifier.Database.Entities;
 
-namespace ShevaTahanotNotifier.Repositories;
+namespace ShevaTahanotNotifier.Database.Repositories;
 
 public interface ITelegramUserRepository : IUserRepository
 {
