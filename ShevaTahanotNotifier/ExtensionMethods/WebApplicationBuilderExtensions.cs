@@ -9,6 +9,7 @@ using ShevaTahanotNotifier.Database.Repositories;
 using ShevaTahanotNotifier.Database.Repositories.Abstract;
 using ShevaTahanotNotifier.Services.Notifiers;
 using ShevaTahanotNotifier.Telegram;
+using ShevaTahanotNotifier.Telegram.CallbackHandlers;
 using ShevaTahanotNotifier.Telegram.CommandHandlers;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
@@ -90,6 +91,7 @@ public static class WebApplicationBuilderExtensions
         services.AddHostedService<BackgroundPollingService>();
 
         AddCommandHandlers(services);
+        AddCallbackHandlers(services);
     }
 
     private static void AddCommandHandlers(IServiceCollection services)
@@ -101,5 +103,10 @@ public static class WebApplicationBuilderExtensions
         services.AddScoped<ICommandHandler, RemoveNotificationScheduleCommandHandler>();
         services.AddScoped<ICommandHandler, EnableNotificationScheduleCommandHandler>();
         services.AddScoped<ICommandHandler, DisableNotificationScheduleCommandHandler>();
+    }
+
+    private static void AddCallbackHandlers(IServiceCollection services)
+    {
+        services.AddScoped<ICallbackHandler, AddCallbackHandler>();
     }
 }

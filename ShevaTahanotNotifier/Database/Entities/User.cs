@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using ShevaTahanotNotifier.Database.Entities.Enums;
 using ShevaTahanotNotifier.Database.Entities.NotificationProviderConfiguration;
 
 namespace ShevaTahanotNotifier.Database.Entities;

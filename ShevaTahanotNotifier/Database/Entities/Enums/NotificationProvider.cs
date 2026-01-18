@@ -1,4 +1,4 @@
-namespace ShevaTahanotNotifier.Database.Entities;
+namespace ShevaTahanotNotifier.Database.Entities.Enums;
 
 public enum NotificationProvider
 {

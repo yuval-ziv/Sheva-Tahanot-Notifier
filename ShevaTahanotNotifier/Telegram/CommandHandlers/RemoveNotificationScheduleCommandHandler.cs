@@ -56,7 +56,7 @@ public class RemoveNotificationScheduleCommandHandler : ICommandHandler
     {
         return new InlineKeyboardButton
         {
-            Text = $"{notificationSchedule.DayOfWeek} - {notificationSchedule.Hour}:{notificationSchedule.Minute}",
+            Text = $"{notificationSchedule.Day} - {notificationSchedule.Hour}:{notificationSchedule.Minute}",
             CallbackData = $"delete_{chatId}_{notificationSchedule.Id}",
         };
     }

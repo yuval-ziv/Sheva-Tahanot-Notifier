@@ -1,10 +1,11 @@
 using ShevaTahanotNotifier.Database.Entities;
+using ShevaTahanotNotifier.Database.Entities.Enums;
 using ShevaTahanotNotifier.Database.Entities.NotificationProviderConfiguration;
 using ShevaTahanotNotifier.Exceptions;
 
 namespace ShevaTahanotNotifier.Services.Notifiers;
 
-public abstract class BaseNotifierService<T> : INotifierService  where T : BaseNotificationProviderConfiguration
+public abstract class BaseNotifierService<T> : INotifierService where T : BaseNotificationProviderConfiguration
 {
     public abstract NotificationProvider NotificationProvider { get; }
     public abstract Task NotifyAsync(User user, CancellationToken cancellationToken = default);
@@ -18,5 +19,4 @@ public abstract class BaseNotifierService<T> : INotifierService  where T : BaseN
 
         throw new InvalidConfigurationTypeException(typeof(T), user.Configuration?.GetType());
     }
-    
 }

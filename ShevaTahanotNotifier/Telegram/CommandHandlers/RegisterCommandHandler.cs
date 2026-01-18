@@ -1,4 +1,4 @@
-using ShevaTahanotNotifier.Database.Entities;
+using ShevaTahanotNotifier.Database.Entities.Enums;
 using ShevaTahanotNotifier.Database.Entities.NotificationProviderConfiguration;
 using ShevaTahanotNotifier.Database.Repositories;
 using Telegram.Bot;
@@ -32,13 +32,13 @@ public class RegisterCommandHandler : ICommandHandler
         if (await _telegramUserRepository.ExistsByChatIdAsync(chatId, cancellationToken))
         {
             _logger.LogDebug("User is already registered with chat {ChatId}", chatId);
-            return await _bot.SendMessage(chatId, $"User {message.From?.Username} is already registered", cancellationToken: cancellationToken);
+            return await _bot.SendMessage(chatId, $"You are already registered.", cancellationToken: cancellationToken);
         }
 
         _logger.LogDebug("Creating Telegram user for chat id {ChatId}", chatId);
         await CreateUserAsync(message, cancellationToken);
         _logger.LogDebug("Created Telegram user for chat id {ChatId}", chatId);
-        return await _bot.SendMessage(chatId, $"User {message.From?.Username} has been registered! Now add new notifications.", cancellationToken: cancellationToken);
+        return await _bot.SendMessage(chatId, $"You have been registered! Now add new notifications.", cancellationToken: cancellationToken);
     }
 
     private Task<User> CreateUserAsync(Message message, CancellationToken cancellationToken = default)

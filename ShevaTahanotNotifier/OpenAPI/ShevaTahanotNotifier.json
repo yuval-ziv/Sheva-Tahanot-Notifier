@@ -137,7 +137,7 @@
           }
         }
       },
-      "DayOfWeek": {
+      "Day": {
         "type": "integer"
       },
       "NotificationProvider": {
@@ -164,7 +164,7 @@
             "type": "boolean"
           },
           "dayOfWeek": {
-            "$ref": "#/components/schemas/DayOfWeek"
+            "$ref": "#/components/schemas/Day"
           },
           "hour": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",

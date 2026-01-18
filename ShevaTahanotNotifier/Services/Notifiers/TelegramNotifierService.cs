@@ -1,4 +1,5 @@
 using ShevaTahanotNotifier.Database.Entities;
+using ShevaTahanotNotifier.Database.Entities.Enums;
 using ShevaTahanotNotifier.Database.Entities.NotificationProviderConfiguration;
 using Telegram.Bot;
 

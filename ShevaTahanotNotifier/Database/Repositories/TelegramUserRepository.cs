@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ShevaTahanotNotifier.Database.Entities;
+using ShevaTahanotNotifier.Database.Entities.Enums;
 using ShevaTahanotNotifier.Database.Entities.NotificationProviderConfiguration;
 
 namespace ShevaTahanotNotifier.Database.Repositories;

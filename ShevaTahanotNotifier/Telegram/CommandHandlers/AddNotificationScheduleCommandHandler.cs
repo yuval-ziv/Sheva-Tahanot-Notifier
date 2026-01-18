@@ -1,6 +1,5 @@
-using EnumsNET;
 using Microsoft.EntityFrameworkCore;
-using ShevaTahanotNotifier.Database.Entities;
+using ShevaTahanotNotifier.Database.Entities.Enums;
 using ShevaTahanotNotifier.Database.Repositories;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -14,15 +13,12 @@ public class AddNotificationScheduleCommandHandler : ICommandHandler
     private readonly ILogger<AddNotificationScheduleCommandHandler> _logger;
     private readonly ITelegramBotClient _bot;
     private readonly ITelegramUserRepository _telegramUserRepository;
-    private readonly INotificationScheduleRepository _notificationScheduleRepository;
 
-    public AddNotificationScheduleCommandHandler(ILogger<AddNotificationScheduleCommandHandler> logger, ITelegramBotClient bot, ITelegramUserRepository telegramUserRepository,
-        INotificationScheduleRepository notificationScheduleRepository)
+    public AddNotificationScheduleCommandHandler(ILogger<AddNotificationScheduleCommandHandler> logger, ITelegramBotClient bot, ITelegramUserRepository telegramUserRepository)
     {
         _logger = logger;
         _bot = bot;
         _telegramUserRepository = telegramUserRepository;
-        _notificationScheduleRepository = notificationScheduleRepository;
     }
 
     public string Command => "/add";
@@ -38,26 +34,21 @@ public class AddNotificationScheduleCommandHandler : ICommandHandler
         if (users.Count <= 0)
         {
             _logger.LogDebug("User is not registered with chat {ChatId}", chatId);
-            return await _bot.SendMessage(chatId, $"User {message.From?.Username} is not registered", cancellationToken: cancellationToken);
+            return await _bot.SendMessage(chatId, $"You are not registered! Please register and try again.", cancellationToken: cancellationToken);
         }
 
-        IEnumerable<InlineKeyboardButton> buttons = Enums.GetValues<DayOfWeek>().Select(day => ToButton(chatId, day));
+        IEnumerable<InlineKeyboardButton> buttons = Day.GetValues().Select(day => ToButton(chatId, day));
 
-        InlineKeyboardMarkup keyboard = new()
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup()
         {
-            InlineKeyboard =
-            [
-                buttons,
-            ],
+            InlineKeyboard = buttons.Chunk(2),
         };
-        return await _bot.SendMessage(chatId, $"Choose a notification to remove", replyMarkup: keyboard, cancellationToken: cancellationToken);
+        return await _bot.SendMessage(chatId, "In which day(s) do you want to add a notification?", replyMarkup: keyboard, cancellationToken: cancellationToken);
     }
 
-    private InlineKeyboardButton ToButton(long chatId, DayOfWeek day)
+    private InlineKeyboardButton ToButton(long chatId, Day day)
     {
-        return new InlineKeyboardButton()
-        {
-            Text = ""
-        };
+        string dayString = day.ToStringFast();
+        return InlineKeyboardButton.WithCallbackData(dayString, $"add_{chatId}_{dayString}");
     }
 }
