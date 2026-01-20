@@ -22,13 +22,15 @@ public abstract class AbstractAdminCommandHandler : IAdminCommandHandler
     public async Task<Message> HandleCommandAsync(Message message, CancellationToken cancellationToken = default)
     {
         long chatId = message.Chat.Id;
-        Logger.LogDebug("Handling admin command from ");
+        Logger.LogDebug("Handling admin command from {ChatId}", chatId);
 
         if (_adminUserValidatorService.IsAdmin(chatId))
         {
+            Logger.LogDebug("User from chat {ChatId} is an admin", chatId);
             return await HandleAuthenticatedAdminCommandAsync(message, cancellationToken: cancellationToken);
         }
 
+        Logger.LogWarning("User from chat {ChatId} is not an admin!", chatId);
         return await Bot.SendMessage(chatId, "You are not authenticated as admin. You are not allowed to use this command", cancellationToken: cancellationToken);
     }
 

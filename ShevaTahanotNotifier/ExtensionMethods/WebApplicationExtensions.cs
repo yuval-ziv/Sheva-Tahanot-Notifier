@@ -18,8 +18,16 @@ public static class WebApplicationExtensions
 
     private static async Task RunMigrationsAsync(IServiceProvider services, CancellationToken cancellationToken = default)
     {
-        await using AsyncServiceScope scope = services.CreateAsyncScope();
-        var context = scope.ServiceProvider.GetRequiredService<NotifierContext>();
-        await context.Database.MigrateAsync(cancellationToken);
+        try
+        {
+            await using AsyncServiceScope scope = services.CreateAsyncScope();
+            var context = scope.ServiceProvider.GetRequiredService<NotifierContext>();
+            await context.Database.MigrateAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while migrating the database");
+        }
     }
 }
