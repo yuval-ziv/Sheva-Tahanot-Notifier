@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Newtonsoft.Json;
 using Serilog;
+using ShevaTahanotNotifier.BackgroundServices;
 using ShevaTahanotNotifier.Configuration;
 using ShevaTahanotNotifier.Database;
 using ShevaTahanotNotifier.Database.Entities;
@@ -33,6 +34,7 @@ public static class WebApplicationBuilderExtensions
         AddOptions(services, configuration);
         AddNotifiers(services);
         AddServices(services);
+        AddBackgroundServices(services);
         services.AddHttpClient();
         services.AddHybridCache(options => options.DefaultEntryOptions = new HybridCacheEntryOptions
         {
@@ -91,6 +93,11 @@ public static class WebApplicationBuilderExtensions
         services.AddScoped<IAdminUserValidatorService, AdminUserValidatorService>();
     }
 
+    private static void AddBackgroundServices(IServiceCollection services)
+    {
+        services.AddHostedService<BackgroundBridgeStatusPollingService>();
+    }
+
     private static void AddSerilog(IServiceCollection services, ConfigurationManager configuration)
     {
         services.AddSerilog(loggerConfiguration => loggerConfiguration.ReadFrom.Configuration(configuration));
@@ -108,7 +115,7 @@ public static class WebApplicationBuilderExtensions
         services.AddScoped<IUpdateHandler, ShevaTahanotNotifierUpdateHandler>();
         services.AddScoped<ITelegramReceiverService, TelegramReceiverService>();
         services.AddScoped<IBotCommandHelper, BotCommandHelper>();
-        services.AddHostedService<BackgroundPollingService>();
+        services.AddHostedService<BackgroundTelegramPollingService>();
 
         AddCommandHandlers(services);
         AddCallbackHandlers(services);

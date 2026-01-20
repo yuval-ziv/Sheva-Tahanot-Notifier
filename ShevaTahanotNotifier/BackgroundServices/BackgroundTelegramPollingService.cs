@@ -1,11 +1,13 @@
-namespace ShevaTahanotNotifier.Telegram;
+using ShevaTahanotNotifier.Telegram;
 
-public class BackgroundPollingService : BackgroundService
+namespace ShevaTahanotNotifier.BackgroundServices;
+
+public class BackgroundTelegramPollingService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly ILogger<BackgroundPollingService> _logger;
+    private readonly ILogger<BackgroundTelegramPollingService> _logger;
 
-    public BackgroundPollingService(IServiceProvider serviceProvider, ILogger<BackgroundPollingService> logger)
+    public BackgroundTelegramPollingService(IServiceProvider serviceProvider, ILogger<BackgroundTelegramPollingService> logger)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
@@ -13,7 +15,7 @@ public class BackgroundPollingService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Starting polling service");
+        _logger.LogInformation("Starting telegram polling service");
         await PollTelegramMessagesAsync(stoppingToken);
     }
 
@@ -30,7 +32,7 @@ public class BackgroundPollingService : BackgroundService
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Polling failed");
+                _logger.LogError(ex, "Telegram polling failed");
                 await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
         }
