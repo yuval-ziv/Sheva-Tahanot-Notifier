@@ -3,7 +3,6 @@ using ShevaTahanotNotifier.Database.Repositories;
 using ShevaTahanotNotifier.Exceptions;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace ShevaTahanotNotifier.Telegram.CallbackHandlers;
 
@@ -26,7 +25,7 @@ public class AddCallbackHandler : ICallbackHandler
     {
         Message? message = callback.Message;
         ArgumentNullException.ThrowIfNull(message);
-        
+
         long? chatId = message.Chat.Id;
         int? messageId = message.MessageId;
 
@@ -48,7 +47,8 @@ public class AddCallbackHandler : ICallbackHandler
         }
 
         _logger.LogDebug("User from chat id {ChatId} wants to create a notification on day {Day}", chatId, day);
-        return await _bot.EditMessageText(chatId: chatId, messageId: messageId.Value, text: $"You chose {day.ToStringFast()}. At what time? Use 24-hour format (e.g. 17:30).", cancellationToken: cancellationToken);
+        return await _bot.EditMessageText(chatId: chatId, messageId: messageId.Value, text: $"You chose {day.ToStringFast()}. At what time? Use 24-hour format (e.g. 17:30).",
+            cancellationToken: cancellationToken);
     }
 
     private (long callbackDataChatId, Day day) ParseCallbackData(string? callbackData)

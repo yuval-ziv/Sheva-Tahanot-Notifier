@@ -1,5 +1,6 @@
 using ShevaTahanotNotifier.Telegram.CallbackHandlers;
 using ShevaTahanotNotifier.Telegram.CommandHandlers;
+using ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -48,6 +49,7 @@ public class ShevaTahanotNotifierUpdateHandler : IUpdateHandler
             return;
         }
 
+        //TODO handle free text with state. so if a user has clicked on a day in /add flow, need to track that and handle it. ITextHandler and persistent cache/db - LastState ({chatId}_{state} - 12345_AddChooseTimeOfDay) 
         string command = messageText.Split(' ')[0];
         ICommandHandler commandHandler = _commandToCommandHandler.GetValueOrDefault(command, _defaultCommandHandler);
         Message sentMessage = await commandHandler.HandleCommandAsync(message, cancellationToken);
@@ -59,7 +61,9 @@ public class ShevaTahanotNotifierUpdateHandler : IUpdateHandler
     {
         _logger.LogDebug("Receive callback with data {CallbackData}", callback.Data);
         if (callback.Data is not { } callbackData)
+        {
             return;
+        }
 
         ICallbackHandler? callbackHandler = _callbackHandlers.FirstOrDefault(callbackHandler => callbackData.StartsWith(callbackHandler.CallbackPrefix, StringComparison.InvariantCultureIgnoreCase));
 

@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using ShevaTahanotNotifier.Database.Entities;
-using ShevaTahanotNotifier.Database.Entities.NotificationProviderConfiguration;
 using ShevaTahanotNotifier.Database.Repositories;
+using ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ShevaTahanotNotifier.Database.Entities.User;
@@ -27,7 +26,7 @@ public class DeleteCommandHandler : ICommandHandler
     public async Task<Message> HandleCommandAsync(Message message, CancellationToken cancellationToken = default)
     {
         long chatId = message.Chat.Id;
-        
+
         _logger.LogDebug("Handling delete command from {ChatId}", chatId);
         List<User> users = await _telegramUserRepository.GetAllByChatId(chatId).ToListAsync(cancellationToken);
         if (users.Count == 0)

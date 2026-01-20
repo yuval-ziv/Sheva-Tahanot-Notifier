@@ -163,7 +163,7 @@
           "enabled": {
             "type": "boolean"
           },
-          "dayOfWeek": {
+          "day": {
             "$ref": "#/components/schemas/Day"
           },
           "hour": {

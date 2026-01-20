@@ -1,6 +1,7 @@
 using ShevaTahanotNotifier.Database.Entities.Enums;
 using ShevaTahanotNotifier.Database.Entities.NotificationProviderConfiguration;
 using ShevaTahanotNotifier.Database.Repositories;
+using ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ShevaTahanotNotifier.Database.Entities.User;
@@ -26,7 +27,6 @@ public class RegisterCommandHandler : ICommandHandler
     public async Task<Message> HandleCommandAsync(Message message, CancellationToken cancellationToken = default)
     {
         long chatId = message.Chat.Id;
-
         _logger.LogDebug("Handling register command from {ChatId}", chatId);
 
         if (await _telegramUserRepository.ExistsByChatIdAsync(chatId, cancellationToken))

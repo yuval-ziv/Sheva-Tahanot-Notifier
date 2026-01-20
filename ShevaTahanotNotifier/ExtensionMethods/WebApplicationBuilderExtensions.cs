@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Newtonsoft.Json;
@@ -7,10 +8,12 @@ using ShevaTahanotNotifier.Database;
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Repositories;
 using ShevaTahanotNotifier.Database.Repositories.Abstract;
+using ShevaTahanotNotifier.Services;
 using ShevaTahanotNotifier.Services.Notifiers;
 using ShevaTahanotNotifier.Telegram;
 using ShevaTahanotNotifier.Telegram.CallbackHandlers;
 using ShevaTahanotNotifier.Telegram.CommandHandlers;
+using ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 
@@ -29,7 +32,12 @@ public static class WebApplicationBuilderExtensions
         AddOpenApi(services);
         AddOptions(services, configuration);
         AddNotifiers(services);
+        AddServices(services);
         services.AddHttpClient();
+        services.AddHybridCache(options => options.DefaultEntryOptions = new HybridCacheEntryOptions
+        {
+            Flags = HybridCacheEntryFlags.DisableDistributedCache,
+        });
 
         AddTelegram(services);
     }
@@ -48,6 +56,9 @@ public static class WebApplicationBuilderExtensions
 
         services.AddScoped<IGenericRepository<NotificationSchedule>, NotificationScheduleRepository>();
         services.AddScoped<INotificationScheduleRepository, NotificationScheduleRepository>();
+
+        services.AddScoped<IGenericRepository<BridgeStatus>, BridgeStatusRepository>();
+        services.AddScoped<IBridgeStatusRepository, BridgeStatusRepository>();
     }
 
     private static void AddControllersWithNewtonsoftJson(IServiceCollection services)
@@ -64,11 +75,20 @@ public static class WebApplicationBuilderExtensions
     {
         services.Configure<NotifierContextOptions>(configuration.GetSection(NotifierContextOptions.ConfigurationSectionName));
         services.Configure<TelegramBotOptions>(configuration.GetSection(TelegramBotOptions.ConfigurationSectionName));
+        services.Configure<HtmlBridgeStatusFetcherOptions>(configuration.GetSection(HtmlBridgeStatusFetcherOptions.ConfigurationSectionName));
     }
 
     private static void AddNotifiers(IServiceCollection services)
     {
         services.AddScoped<INotifierService, TelegramNotifierService>();
+    }
+
+    private static void AddServices(IServiceCollection services)
+    {
+        services.AddScoped<ICacheService, CacheService>();
+        services.AddScoped<IBridgeStatusFetcher, HtmlBridgeStatusFetcher>();
+        services.AddScoped<IBridgeStatusService, BridgeStatusService>();
+        services.AddScoped<IAdminUserValidatorService, AdminUserValidatorService>();
     }
 
     private static void AddSerilog(IServiceCollection services, ConfigurationManager configuration)
@@ -103,6 +123,8 @@ public static class WebApplicationBuilderExtensions
         services.AddScoped<ICommandHandler, RemoveNotificationScheduleCommandHandler>();
         services.AddScoped<ICommandHandler, EnableNotificationScheduleCommandHandler>();
         services.AddScoped<ICommandHandler, DisableNotificationScheduleCommandHandler>();
+        services.AddScoped<ICommandHandler, StatusCommandHandler>();
+        services.AddScoped<ICommandHandler, RefreshCommandHandler>();
     }
 
     private static void AddCallbackHandlers(IServiceCollection services)

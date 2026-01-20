@@ -1,5 +1,6 @@
 using ShevaTahanotNotifier.ExtensionMethods;
 using ShevaTahanotNotifier.Telegram.CommandHandlers;
+using ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
 using Telegram.Bot.Types;
 
 namespace ShevaTahanotNotifier.Telegram;
@@ -15,9 +16,9 @@ public class BotCommandHelper : IBotCommandHelper
         _helpCommandHandler = helpCommandHandler;
     }
 
-    public IEnumerable<BotCommand> GetAll()
+    public IEnumerable<BotCommand> GetAll(bool isAdmin)
     {
-        return _commandHandlers.Prepend(_helpCommandHandler).Select(GetBotCommand);
+        return _commandHandlers.Prepend(_helpCommandHandler).Where(commandHandler => isAdmin || commandHandler is not IAdminCommandHandler).Select(GetBotCommand);
     }
 
     private BotCommand GetBotCommand(ICommandHandler commandHandler)

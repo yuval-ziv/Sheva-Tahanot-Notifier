@@ -4,5 +4,5 @@ namespace ShevaTahanotNotifier.Telegram;
 
 public interface IBotCommandHelper
 {
-    IEnumerable<BotCommand> GetAll();
+    IEnumerable<BotCommand> GetAll(bool isAdmin);
 }

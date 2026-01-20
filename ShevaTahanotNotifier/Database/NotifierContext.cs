@@ -3,7 +3,6 @@ using Microsoft.Extensions.Options;
 using ShevaTahanotNotifier.Configuration;
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Entities.NotificationProviderConfiguration;
-using Telegram.Bot.Types;
 using User = ShevaTahanotNotifier.Database.Entities.User;
 
 namespace ShevaTahanotNotifier.Database;
@@ -13,12 +12,13 @@ public class NotifierContext : DbContext
     private readonly NotifierContextOptions _configuration;
     public DbSet<User> Users { get; set; }
     public DbSet<NotificationSchedule> NotificationSchedules { get; set; }
+    public DbSet<BridgeStatus> BridgeStatuses { get; set; }
 
     public NotifierContext(DbContextOptions<NotifierContext> options, IOptionsMonitor<NotifierContextOptions> optionsMonitor) : base(options)
     {
         _configuration = optionsMonitor.CurrentValue;
     }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         switch (_configuration.DatabaseProviderType)
