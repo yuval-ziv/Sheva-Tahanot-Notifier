@@ -9,16 +9,16 @@ using User = ShevaTahanotNotifier.Database.Entities.User;
 
 namespace ShevaTahanotNotifier.Telegram.CallbackHandlers;
 
-public class AddDayCallbackHandler : ICallbackHandler
+public class AddNotificationDayCallbackHandler : ICallbackHandler
 {
-    public const string CallbackName = "after_add_day";
+    public const string CallbackName = "aad"; //after add day
     public const string SelectedDayExtraDataKey = "selected_day";
-    
-    private readonly ILogger<AddDayCallbackHandler> _logger;
+
+    private readonly ILogger<AddNotificationDayCallbackHandler> _logger;
     private readonly ITelegramBotClient _bot;
     private readonly ITelegramUserRepository _telegramUserRepository;
 
-    public AddDayCallbackHandler(ILogger<AddDayCallbackHandler> logger, ITelegramBotClient bot, ITelegramUserRepository telegramUserRepository)
+    public AddNotificationDayCallbackHandler(ILogger<AddNotificationDayCallbackHandler> logger, ITelegramBotClient bot, ITelegramUserRepository telegramUserRepository)
     {
         _logger = logger;
         _bot = bot;
@@ -37,7 +37,7 @@ public class AddDayCallbackHandler : ICallbackHandler
 
         await _bot.EditMessageReplyMarkup(chatId: chatId, messageId: messageId, replyMarkup: null, cancellationToken: cancellationToken);
 
-        _logger.LogDebug("Handling register command from {ChatId}", chatId);
+        _logger.LogDebug("Handling add day callback from {ChatId}", chatId);
 
         User? user = await _telegramUserRepository.GetByChatIdAsync(chatId, tracking: false, cancellationToken);
 
@@ -57,7 +57,7 @@ public class AddDayCallbackHandler : ICallbackHandler
         _logger.LogDebug("User from chat id {ChatId} wants to create a notification on day {Day}", chatId, day);
         Message messageSent = await _bot.EditMessageText(chatId: chatId, messageId: messageId, text: $"You chose {day.ToStringFast()}. At what time? Use 24-hour format (e.g. 17:30).",
             cancellationToken: cancellationToken);
-        
+
         var conversation = new Conversation
         {
             UserId = user.Id,
@@ -69,7 +69,7 @@ public class AddDayCallbackHandler : ICallbackHandler
                 { SelectedDayExtraDataKey, day.ToStringFast() },
             },
         };
-        
+
         return (messageSent, conversation);
     }
 

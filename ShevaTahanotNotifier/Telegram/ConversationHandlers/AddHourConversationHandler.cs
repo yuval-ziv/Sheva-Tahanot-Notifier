@@ -36,7 +36,7 @@ public class AddHourConversationHandler : IConversationHandler
             return await DeleteConversationAndSendRestartProcessAsync(conversation, cancellationToken, chatId);
         }
 
-        if (!conversation.ExtraData.TryGetValue(AddDayCallbackHandler.SelectedDayExtraDataKey, out string? selectedDayExtraData))
+        if (!conversation.ExtraData.TryGetValue(AddNotificationDayCallbackHandler.SelectedDayExtraDataKey, out string? selectedDayExtraData))
         {
             return await DeleteConversationAndSendRestartProcessAsync(conversation, cancellationToken, chatId);
         }

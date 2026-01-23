@@ -51,6 +51,6 @@ public class AddNotificationScheduleCommandHandler : ICommandHandler
     private InlineKeyboardButton ToButton(long chatId, Day day)
     {
         string dayString = day.ToStringFast();
-        return InlineKeyboardButton.WithCallbackData(dayString, $"{AddDayCallbackHandler.CallbackName}_{chatId}_{dayString}");
+        return InlineKeyboardButton.WithCallbackData(dayString, $"{AddNotificationDayCallbackHandler.CallbackName}_{chatId}_{dayString}");
     }
 }

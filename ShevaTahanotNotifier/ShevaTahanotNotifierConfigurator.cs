@@ -150,7 +150,8 @@ public class ShevaTahanotNotifierConfigurator
 
     private static void AddCallbackHandlers(IServiceCollection services)
     {
-        services.AddScoped<ICallbackHandler, AddDayCallbackHandler>();
+        services.AddScoped<ICallbackHandler, AddNotificationDayCallbackHandler>();
+        services.AddScoped<ICallbackHandler, RemoveNotificationCallbackHandler>();
     }
 
     private static void AddConversationHandlers(IServiceCollection services)
