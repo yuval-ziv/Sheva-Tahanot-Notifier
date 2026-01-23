@@ -1,3 +1,4 @@
+using ShevaTahanotNotifier.Database.Entities;
 using Telegram.Bot.Types;
 
 namespace ShevaTahanotNotifier.Telegram.CallbackHandlers;
@@ -5,5 +6,5 @@ namespace ShevaTahanotNotifier.Telegram.CallbackHandlers;
 public interface ICallbackHandler
 {
     string CallbackPrefix { get; }
-    Task<Message> HandleCallbackAsync(CallbackQuery callback, CancellationToken cancellationToken = default);
+    Task<(Message Message, Conversation? Conversation)> HandleCallbackAsync(CallbackQuery callback, CancellationToken cancellationToken = default);
 }

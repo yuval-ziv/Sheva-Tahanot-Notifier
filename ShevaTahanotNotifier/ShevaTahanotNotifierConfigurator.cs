@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
@@ -15,14 +16,22 @@ using ShevaTahanotNotifier.Telegram;
 using ShevaTahanotNotifier.Telegram.CallbackHandlers;
 using ShevaTahanotNotifier.Telegram.CommandHandlers;
 using ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
+using ShevaTahanotNotifier.Telegram.ConversationHandlers;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 
-namespace ShevaTahanotNotifier.ExtensionMethods;
+namespace ShevaTahanotNotifier;
 
-public static class WebApplicationBuilderExtensions
+public class ShevaTahanotNotifierConfigurator
 {
-    public static void RegisterShevaTahanotNotifier(this WebApplicationBuilder builder)
+    public static async Task<WebApplication> ConfigureAsync(WebApplicationBuilder builder, CancellationToken cancellationToken = default)
+    {
+        ConfigureServices(builder);
+
+        return await BuildApplication(builder, cancellationToken);
+    }
+
+    private static void ConfigureServices(WebApplicationBuilder builder)
     {
         IServiceCollection services = builder.Services;
         ConfigurationManager configuration = builder.Configuration;
@@ -61,6 +70,9 @@ public static class WebApplicationBuilderExtensions
 
         services.AddScoped<IGenericRepository<BridgeStatus>, BridgeStatusRepository>();
         services.AddScoped<IBridgeStatusRepository, BridgeStatusRepository>();
+
+        services.AddScoped<IGenericRepository<Conversation>, ConversationRepository>();
+        services.AddScoped<IConversationRepository, ConversationRepository>();
     }
 
     private static void AddControllersWithNewtonsoftJson(IServiceCollection services)
@@ -117,8 +129,10 @@ public static class WebApplicationBuilderExtensions
         services.AddScoped<IBotCommandHelper, BotCommandHelper>();
         services.AddHostedService<BackgroundTelegramPollingService>();
 
+        services.AddScoped<IFreeTextMessageHandler, FreeTextMessageHandler>();
         AddCommandHandlers(services);
         AddCallbackHandlers(services);
+        AddConversationHandlers(services);
     }
 
     private static void AddCommandHandlers(IServiceCollection services)
@@ -136,6 +150,40 @@ public static class WebApplicationBuilderExtensions
 
     private static void AddCallbackHandlers(IServiceCollection services)
     {
-        services.AddScoped<ICallbackHandler, AddCallbackHandler>();
+        services.AddScoped<ICallbackHandler, AddDayCallbackHandler>();
+    }
+
+    private static void AddConversationHandlers(IServiceCollection services)
+    {
+        services.AddScoped<IConversationHandler, AddHourConversationHandler>();
+    }
+
+
+    private static async Task<WebApplication> BuildApplication(WebApplicationBuilder builder, CancellationToken cancellationToken)
+    {
+        WebApplication app = builder.Build();
+
+        app.MapOpenApi();
+        app.MapControllers();
+        app.UseHttpsRedirection();
+        app.UseSerilogRequestLogging();
+
+        await RunMigrationsAsync(app.Services, cancellationToken);
+        return app;
+    }
+
+    private static async Task RunMigrationsAsync(IServiceProvider services, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            await using AsyncServiceScope scope = services.CreateAsyncScope();
+            var context = scope.ServiceProvider.GetRequiredService<NotifierContext>();
+            await context.Database.MigrateAsync(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<Program>>();
+            logger.LogError(ex, "An error occurred while migrating the database");
+        }
     }
 }

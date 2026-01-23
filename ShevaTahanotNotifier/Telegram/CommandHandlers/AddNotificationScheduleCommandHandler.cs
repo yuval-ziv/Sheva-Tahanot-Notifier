@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ShevaTahanotNotifier.Database.Entities.Enums;
 using ShevaTahanotNotifier.Database.Repositories;
+using ShevaTahanotNotifier.Telegram.CallbackHandlers;
 using ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -35,7 +36,7 @@ public class AddNotificationScheduleCommandHandler : ICommandHandler
         if (users.Count <= 0)
         {
             _logger.LogDebug("User is not registered with chat {ChatId}", chatId);
-            return await _bot.SendMessage(chatId, $"You are not registered! Please register and try again.", cancellationToken: cancellationToken);
+            return await _bot.SendMessage(chatId, "You are not registered! Please register and try again.", cancellationToken: cancellationToken);
         }
 
         IEnumerable<InlineKeyboardButton> buttons = Day.GetValues().Select(day => ToButton(chatId, day));
@@ -50,6 +51,6 @@ public class AddNotificationScheduleCommandHandler : ICommandHandler
     private InlineKeyboardButton ToButton(long chatId, Day day)
     {
         string dayString = day.ToStringFast();
-        return InlineKeyboardButton.WithCallbackData(dayString, $"add_{chatId}_{dayString}");
+        return InlineKeyboardButton.WithCallbackData(dayString, $"{AddDayCallbackHandler.CallbackName}_{chatId}_{dayString}");
     }
 }

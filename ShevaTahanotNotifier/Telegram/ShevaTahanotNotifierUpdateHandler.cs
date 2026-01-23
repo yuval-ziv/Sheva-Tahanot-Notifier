@@ -1,6 +1,9 @@
+using ShevaTahanotNotifier.Database.Entities;
+using ShevaTahanotNotifier.Database.Repositories;
 using ShevaTahanotNotifier.Telegram.CallbackHandlers;
 using ShevaTahanotNotifier.Telegram.CommandHandlers;
 using ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
+using ShevaTahanotNotifier.Telegram.ConversationHandlers;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -13,15 +16,19 @@ public class ShevaTahanotNotifierUpdateHandler : IUpdateHandler
     private readonly Dictionary<string, ICommandHandler> _commandToCommandHandler;
     private readonly List<ICallbackHandler> _callbackHandlers;
     private readonly HelpCommandHandler _defaultCommandHandler;
+    private readonly IConversationRepository _conversationRepository;
+    private readonly IFreeTextMessageHandler _freeTextMessageHandler;
 
     public ShevaTahanotNotifierUpdateHandler(ILogger<ShevaTahanotNotifierUpdateHandler> logger, IEnumerable<ICommandHandler> commandHandlers, HelpCommandHandler defaultCommandHandler,
-        IEnumerable<ICallbackHandler> callbackHandlers)
+        IEnumerable<ICallbackHandler> callbackHandlers, IConversationRepository conversationRepository, IFreeTextMessageHandler freeTextMessageHandler)
     {
         _logger = logger;
         _commandToCommandHandler = commandHandlers.ToDictionary(commandHandler => commandHandler.Command, commandHandler => commandHandler);
         _defaultCommandHandler = defaultCommandHandler;
         _commandToCommandHandler[_defaultCommandHandler.Command] = _defaultCommandHandler;
         _callbackHandlers = callbackHandlers.ToList();
+        _conversationRepository = conversationRepository;
+        _freeTextMessageHandler = freeTextMessageHandler;
     }
 
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken = default)
@@ -49,12 +56,22 @@ public class ShevaTahanotNotifierUpdateHandler : IUpdateHandler
             return;
         }
 
-        //TODO handle free text with state. so if a user has clicked on a day in /add flow, need to track that and handle it. ITextHandler and persistent cache/db - LastState ({chatId}_{state} - 12345_AddChooseTimeOfDay) 
-        string command = messageText.Split(' ')[0];
-        ICommandHandler commandHandler = _commandToCommandHandler.GetValueOrDefault(command, _defaultCommandHandler);
-        Message sentMessage = await commandHandler.HandleCommandAsync(message, cancellationToken);
+        Message sentMessage;
+        string handlerName;
+        if (messageText.StartsWith('/'))
+        {
+            string command = messageText.Split(' ')[0];
+            ICommandHandler commandHandler = _commandToCommandHandler.GetValueOrDefault(command, _defaultCommandHandler);
+            sentMessage = await commandHandler.HandleCommandAsync(message, cancellationToken);
+            handlerName = commandHandler.GetType().Name;
+        }
+        else
+        {
+            sentMessage = await _freeTextMessageHandler.HandleFreeTextMessageAsync(message, cancellationToken);
+            handlerName = _freeTextMessageHandler.GetType().Name;
+        }
 
-        _logger.LogDebug("Send response with id {SentMessageId} using {CommandHandler}", sentMessage.Id, commandHandler.GetType().Name);
+        _logger.LogDebug("Send response with id {SentMessageId} using {HandlerName}", sentMessage.Id, handlerName);
     }
 
     private async Task OnCallbackAsync(CallbackQuery callback, CancellationToken cancellationToken)
@@ -73,7 +90,18 @@ public class ShevaTahanotNotifierUpdateHandler : IUpdateHandler
             return;
         }
 
-        Message sentMessage = await callbackHandler.HandleCallbackAsync(callback, cancellationToken);
+        (Message sentMessage, Conversation? conversation) = await callbackHandler.HandleCallbackAsync(callback, cancellationToken);
         _logger.LogDebug("Send response with id {SentMessageId} using {CommandHandler}", sentMessage.Id, callbackHandler.GetType().Name);
+        await SaveConversationIfNotNullAsync(conversation);
+    }
+
+    private async Task SaveConversationIfNotNullAsync(Conversation? conversation)
+    {
+        if (conversation is null)
+        {
+            return;
+        }
+
+        await _conversationRepository.CreateAsync(conversation);
     }
 }
