@@ -60,4 +60,4 @@ riderModule.iml
 .idea/
 ShevaTahanotNotifier/Logs/
 ShevaTahanotNotifier/appsettings.Development.json
-ShevaTahanotNotifier/ShevaTahanotNotifier.db
+ShevaTahanotNotifier/ShevaTahanotNotifier.db*
