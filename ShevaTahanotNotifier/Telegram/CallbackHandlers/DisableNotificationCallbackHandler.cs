@@ -44,7 +44,7 @@ public class DisableNotificationCallbackHandler : ICallbackHandler
         if (user is null)
         {
             _logger.LogDebug("User is not registered with chat {ChatId}", chatId);
-            return (await _bot.SendMessage(chatId, $"You are not registered! Please register and try again.", cancellationToken: cancellationToken), null);
+            return (await _bot.SendMessage(chatId, "You are not registered! Please register and try again.", cancellationToken: cancellationToken), null);
         }
 
         (long callbackDataChatId, Guid notificationId) = ParseCallbackData(callback.Data);

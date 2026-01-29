@@ -10,4 +10,6 @@ public class NotificationSchedule : BaseEntity
     public Day Day { get; set; }
     public short Hour { get; set; }
     public short Minute { get; set; }
+
+    public string ButtonText => $"{Day} - {Hour:00}:{Minute:00} ({(Enabled ? "Enabled" : "Disabled")})";
 }

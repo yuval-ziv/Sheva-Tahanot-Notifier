@@ -36,13 +36,19 @@ public class DisableNotificationScheduleCommandHandler : ICommandHandler
         if (users.Count <= 0)
         {
             _logger.LogDebug("User is not registered with chat {ChatId}", chatId);
-            return await _bot.SendMessage(chatId, $"You are not registered", cancellationToken: cancellationToken);
+            return await _bot.SendMessage(chatId, "You are not registered", cancellationToken: cancellationToken);
         }
 
         if (!users.SelectMany(user => user.NotificationSchedules ?? Enumerable.Empty<NotificationSchedule>()).Any())
         {
             _logger.LogDebug("User has no notification schedules with chat {ChatId}", chatId);
-            return await _bot.SendMessage(chatId, $"You don't have any notification schedules.", cancellationToken: cancellationToken);
+            return await _bot.SendMessage(chatId, "You don't have any notification schedules.", cancellationToken: cancellationToken);
+        }
+
+        if (users.SelectMany(user => user.NotificationSchedules ?? Enumerable.Empty<NotificationSchedule>()).All(schedule => !schedule.Enabled))
+        {
+            _logger.LogDebug("User has no enabled notification schedules with chat {ChatId}", chatId);
+            return await _bot.SendMessage(chatId, "You don't have any enabled notification schedules.", cancellationToken: cancellationToken);
         }
 
         IEnumerable<InlineKeyboardButton> buttons = users.SelectMany(user => user.NotificationSchedules ?? Enumerable.Empty<NotificationSchedule>())
@@ -60,7 +66,7 @@ public class DisableNotificationScheduleCommandHandler : ICommandHandler
     {
         return new InlineKeyboardButton
         {
-            Text = $"{notificationSchedule.Day} - {notificationSchedule.Hour:00}:{notificationSchedule.Minute:00}",
+            Text = notificationSchedule.ButtonText,
             CallbackData = $"{DisableNotificationCallbackHandler.CallbackName}_{chatId}_{notificationSchedule.Id}",
         };
     }

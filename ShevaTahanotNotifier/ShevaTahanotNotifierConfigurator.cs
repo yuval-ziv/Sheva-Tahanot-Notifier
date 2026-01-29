@@ -146,12 +146,15 @@ public class ShevaTahanotNotifierConfigurator
         services.AddScoped<ICommandHandler, DisableNotificationScheduleCommandHandler>();
         services.AddScoped<ICommandHandler, StatusCommandHandler>();
         services.AddScoped<ICommandHandler, RefreshCommandHandler>();
+        services.AddScoped<ICommandHandler, ListNotificationScheduleCommandHandler>();
     }
 
     private static void AddCallbackHandlers(IServiceCollection services)
     {
         services.AddScoped<ICallbackHandler, AddNotificationDayCallbackHandler>();
         services.AddScoped<ICallbackHandler, RemoveNotificationCallbackHandler>();
+        services.AddScoped<ICallbackHandler, EnableNotificationCallbackHandler>();
+        services.AddScoped<ICallbackHandler, DisableNotificationCallbackHandler>();
     }
 
     private static void AddConversationHandlers(IServiceCollection services)

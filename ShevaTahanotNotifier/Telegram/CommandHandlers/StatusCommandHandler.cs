@@ -33,7 +33,7 @@ public class StatusCommandHandler : ICommandHandler
         if (!await _telegramUserRepository.ExistsByChatIdAsync(chatId, cancellationToken))
         {
             _logger.LogDebug("User is not registered with chat {ChatId}", chatId);
-            return await _bot.SendMessage(chatId, $"You are not registered.", cancellationToken: cancellationToken);
+            return await _bot.SendMessage(chatId, "You are not registered.", cancellationToken: cancellationToken);
         }
 
         BridgeStatus bridgeStatus = await _bridgeStatusService.GetLastBridgeStatusAsync(cancellationToken: cancellationToken);

@@ -182,6 +182,12 @@
             ],
             "format": "int16"
           },
+          "buttonText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "id": {
             "type": "string",
             "format": "uuid"
