@@ -10,9 +10,10 @@ namespace ShevaTahanotNotifier.Telegram.CommandHandlers;
 public class HelpCommandHandler : ICommandHandler
 {
     private const char Space = ' ';
-    private const char CodeBlock = '`';
+    private const string CodeBlockStart = "<code>";
+    private const string CodeBlockEnd = "</code>";
     private const int PaddingBetweenCommandAndDescription = 12;
-    private const string? Separator = @" \- ";
+    private const string? Separator = " - ";
     private const int PreCommandPadding = 4;
     private readonly ITelegramBotClient _bot;
     private readonly IBotCommandHelper _botCommandHelper;
@@ -32,19 +33,19 @@ public class HelpCommandHandler : ICommandHandler
     {
         long chatId = message.Chat.Id;
         var helpMessage = new StringBuilder();
-        helpMessage.Append("*__Bot menu__*").AppendLine();
+        helpMessage.Append("<b><u>Bot menu</u></b>").AppendLine();
         bool isAdmin = _adminUserValidatorService.IsAdmin(chatId);
         foreach (BotCommand command in _botCommandHelper.GetAll(isAdmin))
         {
             int padding = PaddingBetweenCommandAndDescription - command.Command.Length;
 
             helpMessage.Append(Space, PreCommandPadding);
-            helpMessage.Append(CodeBlock);
+            helpMessage.Append(CodeBlockStart);
             helpMessage.Append(command.Command);
-            helpMessage.Append(CodeBlock);
-            helpMessage.Append(CodeBlock);
+            helpMessage.Append(CodeBlockEnd);
+            helpMessage.Append(CodeBlockStart);
             helpMessage.Append(Space, padding);
-            helpMessage.Append(CodeBlock);
+            helpMessage.Append(CodeBlockEnd);
 
             helpMessage.Append(Separator);
             helpMessage.Append(command.Description);
@@ -52,6 +53,6 @@ public class HelpCommandHandler : ICommandHandler
             helpMessage.AppendLine();
         }
 
-        return await _bot.SendMessage(chatId, helpMessage.ToString(), parseMode: ParseMode.MarkdownV2, replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+        return await _bot.SendMessage(chatId, helpMessage.ToString(), parseMode: ParseMode.Html, replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
     }
 }

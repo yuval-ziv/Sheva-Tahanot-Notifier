@@ -17,7 +17,7 @@ public class RefreshCommandHandler : AbstractAdminCommandHandler, ICommandHandle
     }
 
     public override string Command => "/refresh";
-    public override string Description => "refresh bridge status cache [admin only]";
+    public override string Description => "refresh bridge status cache (admin only)";
 
     protected override async Task<Message> HandleAuthenticatedAdminCommandAsync(Message message, CancellationToken cancellationToken = default)
     {
