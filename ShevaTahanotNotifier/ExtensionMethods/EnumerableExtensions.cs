@@ -11,4 +11,15 @@ public static class EnumerableExtensions
             _ => enumerable.ToArray()
         };
     }
+
+    public static async Task ForEachAsync<T>(this IAsyncEnumerable<T> enumerable, Action<T> action, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(enumerable);
+        ArgumentNullException.ThrowIfNull(action);
+
+        await foreach (T item in enumerable.WithCancellation(cancellationToken))
+        {
+            action(item);
+        }
+    }
 }

@@ -24,7 +24,7 @@ public class RefreshCommandHandler : AbstractAdminCommandHandler, ICommandHandle
     {
         long chatId = message.Chat.Id;
         Logger.LogDebug("Handling refresh command from {ChatId}", chatId);
-        BridgeStatus bridgeStatus = await _bridgeStatusService.UpdateBridgeStatusAsync(ManualRefresh, cancellationToken);
+        BridgeStatus bridgeStatus = await _bridgeStatusService.GetLastBridgeStatusAsync(skipCache: true, isManualRefresh: true, cancellationToken: cancellationToken);
         return await Bot.SendMessage(chatId, $"Bridge status has been refreshed. {bridgeStatus.ToNotificationString()}", cancellationToken: cancellationToken);
     }
 }

@@ -1,6 +1,7 @@
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Repositories;
 using ShevaTahanotNotifier.Exceptions;
+using ShevaTahanotNotifier.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ShevaTahanotNotifier.Database.Entities.User;
@@ -14,15 +15,15 @@ public class RemoveNotificationCallbackHandler : ICallbackHandler
     private readonly ILogger<RemoveNotificationCallbackHandler> _logger;
     private readonly ITelegramBotClient _bot;
     private readonly ITelegramUserRepository _telegramUserRepository;
-    private readonly INotificationScheduleRepository _notificationScheduleRepository;
+    private readonly INotificationScheduleService _notificationScheduleService;
 
     public RemoveNotificationCallbackHandler(ILogger<RemoveNotificationCallbackHandler> logger, ITelegramBotClient bot, ITelegramUserRepository telegramUserRepository,
-        INotificationScheduleRepository notificationScheduleRepository)
+        INotificationScheduleService notificationScheduleService)
     {
         _logger = logger;
         _bot = bot;
         _telegramUserRepository = telegramUserRepository;
-        _notificationScheduleRepository = notificationScheduleRepository;
+        _notificationScheduleService = notificationScheduleService;
     }
 
     public string CallbackPrefix => CallbackName;
@@ -61,7 +62,7 @@ public class RemoveNotificationCallbackHandler : ICallbackHandler
         }
 
         _logger.LogDebug("Removing notification {NotificationId}", notificationId);
-        await _notificationScheduleRepository.DeleteAsync(notificationId, cancellationToken: cancellationToken);
+        await _notificationScheduleService.DeleteAsync(notificationId, cancellationToken: cancellationToken);
         _logger.LogDebug("Notification {NotificationId} was removed", notificationId);
 
         return (await _bot.EditMessageText(chatId: chatId, messageId: messageId, text: "Removed notification.", cancellationToken: cancellationToken), null);

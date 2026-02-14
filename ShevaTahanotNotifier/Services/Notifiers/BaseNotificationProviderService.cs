@@ -5,7 +5,7 @@ using ShevaTahanotNotifier.Exceptions;
 
 namespace ShevaTahanotNotifier.Services.Notifiers;
 
-public abstract class BaseNotifierService<T> : INotifierService where T : BaseNotificationProviderConfiguration
+public abstract class BaseNotificationProviderService<T> : INotificationProviderService where T : BaseNotificationProviderConfiguration
 {
     public abstract NotificationProvider NotificationProvider { get; }
     public abstract Task NotifyAsync(User user, CancellationToken cancellationToken = default);

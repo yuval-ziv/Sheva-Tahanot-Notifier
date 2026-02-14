@@ -1,6 +1,7 @@
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Repositories;
 using ShevaTahanotNotifier.Exceptions;
+using ShevaTahanotNotifier.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ShevaTahanotNotifier.Database.Entities.User;
@@ -14,15 +15,15 @@ public class EnableNotificationCallbackHandler : ICallbackHandler
     private readonly ILogger<EnableNotificationCallbackHandler> _logger;
     private readonly ITelegramBotClient _bot;
     private readonly ITelegramUserRepository _telegramUserRepository;
-    private readonly INotificationScheduleRepository _notificationScheduleRepository;
+    private readonly INotificationScheduleService _notificationScheduleService;
 
     public EnableNotificationCallbackHandler(ILogger<EnableNotificationCallbackHandler> logger, ITelegramBotClient bot, ITelegramUserRepository telegramUserRepository,
-        INotificationScheduleRepository notificationScheduleRepository)
+        INotificationScheduleService notificationScheduleService)
     {
         _logger = logger;
         _bot = bot;
         _telegramUserRepository = telegramUserRepository;
-        _notificationScheduleRepository = notificationScheduleRepository;
+        _notificationScheduleService = notificationScheduleService;
     }
 
     public string CallbackPrefix => CallbackName;
@@ -61,7 +62,7 @@ public class EnableNotificationCallbackHandler : ICallbackHandler
         }
 
         _logger.LogDebug("Enabling notification {NotificationId}", notificationId);
-        await EnableNotificationAsync(notificationId, cancellationToken);
+        await _notificationScheduleService.EnableAsync(notificationId, cancellationToken);
         _logger.LogDebug("Notification {NotificationId} was enabled", notificationId);
 
         return (await _bot.EditMessageText(chatId: chatId, messageId: messageId, text: "Enabled notification.", cancellationToken: cancellationToken), null);
@@ -93,15 +94,5 @@ public class EnableNotificationCallbackHandler : ICallbackHandler
         }
 
         return (chatId, notificationId);
-    }
-
-    private async Task EnableNotificationAsync(Guid notificationId, CancellationToken cancellationToken)
-    {
-        NotificationSchedule? notification = await _notificationScheduleRepository.GetByIdAsync(notificationId, tracking: true, cancellationToken);
-        if (notification is not null)
-        {
-            notification.Enabled = true;
-            await _notificationScheduleRepository.UpdateAsync(notification, saveChanges: true, cancellationToken);
-        }
     }
 }

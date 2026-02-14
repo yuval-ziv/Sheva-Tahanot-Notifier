@@ -1,6 +1,7 @@
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Entities.Enums;
 using ShevaTahanotNotifier.Database.Repositories;
+using ShevaTahanotNotifier.Services;
 using ShevaTahanotNotifier.Telegram.CallbackHandlers;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -12,17 +13,17 @@ public class AddHourConversationHandler : IConversationHandler
     private readonly ILogger<AddHourConversationHandler> _logger;
     private readonly ITelegramBotClient _bot;
     private readonly IConversationRepository _conversationRepository;
-    private readonly INotificationScheduleRepository _notificationScheduleRepository;
+    private readonly INotificationScheduleService _notificationScheduleService;
 
     public const string AddHourStepName = "add_hour";
 
     public AddHourConversationHandler(ILogger<AddHourConversationHandler> logger, ITelegramBotClient bot, IConversationRepository conversationRepository,
-        INotificationScheduleRepository notificationScheduleRepository)
+        INotificationScheduleService notificationScheduleService)
     {
         _logger = logger;
         _bot = bot;
         _conversationRepository = conversationRepository;
-        _notificationScheduleRepository = notificationScheduleRepository;
+        _notificationScheduleService = notificationScheduleService;
     }
 
     public string StepName => AddHourStepName;
@@ -30,6 +31,7 @@ public class AddHourConversationHandler : IConversationHandler
     public async Task<Message> HandleConversationAsync(Message message, Conversation conversation, CancellationToken cancellationToken = default)
     {
         long chatId = message.Chat.Id;
+        _logger.LogDebug("Handling add hour conversation with chat {ChatId}", chatId);
 
         if (conversation.ExtraData is null)
         {
@@ -48,6 +50,7 @@ public class AddHourConversationHandler : IConversationHandler
 
         if (!TryParseTo24Hour(message.Text, out short hour, out short minute))
         {
+            _logger.LogWarning("Unable to parse {MessageText} into 24-hour format from chat {ChatId}", message.Text, chatId);
             return await _bot.SendMessage(chatId, $"Unable to parse {message.Text} into 24-hour format. Please try again.", cancellationToken: cancellationToken);
         }
 
@@ -60,8 +63,10 @@ public class AddHourConversationHandler : IConversationHandler
             UserId = conversation.UserId,
         };
 
+        _logger.LogDebug("Deleting conversation {ConversationId} from chat {ChatId} and creating a notification schedule", conversation.Id, chatId);
         await _conversationRepository.DeleteAsync(conversation, saveChanges: false, cancellationToken: cancellationToken);
-        await _notificationScheduleRepository.CreateAsync(notificationSchedule, saveChanges: true, cancellationToken);
+        await _notificationScheduleService.CreateAsync(notificationSchedule, cancellationToken);
+        _logger.LogDebug("Finished creating notification schedule with id {NotificationScheduleId} for chat {ChatId}", notificationSchedule.Id, chatId);
 
         string every = day == Day.Everyday ? "" : " every";
         string dayString = day.ToStringFast();
@@ -71,6 +76,7 @@ public class AddHourConversationHandler : IConversationHandler
 
     private async Task<Message> DeleteConversationAndSendRestartProcessAsync(Conversation conversation, CancellationToken cancellationToken, long chatId)
     {
+        _logger.LogWarning("Unknown error occured when trying to handle add hour conversation with chat {ChatId}. Restarting process", chatId);
         await _conversationRepository.DeleteAsync(conversation, saveChanges: true, cancellationToken);
         return await _bot.SendMessage(chatId, "Unknown error occured. Please restart the process.", cancellationToken: cancellationToken);
     }

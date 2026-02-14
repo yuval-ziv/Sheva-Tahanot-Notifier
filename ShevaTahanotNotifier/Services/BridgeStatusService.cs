@@ -20,9 +20,8 @@ public class BridgeStatusService : IBridgeStatusService
         _fetcher = fetcher;
     }
 
-    public async Task<BridgeStatus> GetLastBridgeStatusAsync(bool skipCache = false, CancellationToken cancellationToken = default)
+    public async Task<BridgeStatus> GetLastBridgeStatusAsync(bool skipCache = false, bool isManualRefresh = false, CancellationToken cancellationToken = default)
     {
-        bool isManualRefresh = skipCache;
         if (!skipCache)
         {
             _logger.LogDebug("Fetching last bridge status from cache");
@@ -37,7 +36,7 @@ public class BridgeStatusService : IBridgeStatusService
         return status;
     }
 
-    public async Task<BridgeStatus> UpdateBridgeStatusAsync(bool isManualRefresh, CancellationToken cancellationToken = default)
+    private async Task<BridgeStatus> UpdateBridgeStatusAsync(bool isManualRefresh, CancellationToken cancellationToken = default)
     {
         _logger.LogDebug("Updating bridge status");
         bool isBridgeOpen = await _fetcher.FetchBridgeStatusAsync(cancellationToken);

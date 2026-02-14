@@ -29,7 +29,7 @@ public class BackgroundBridgeStatusPollingService : BackgroundService
                 using IServiceScope scope = _serviceProvider.CreateScope();
                 var bridgeStatusService = scope.ServiceProvider.GetRequiredService<IBridgeStatusService>();
 
-                await bridgeStatusService.UpdateBridgeStatusAsync(false, stoppingToken);
+                await bridgeStatusService.GetLastBridgeStatusAsync(true, false, stoppingToken);
                 _logger.LogDebug("Bridge status polling finished successfully");
             }
             catch (Exception ex)

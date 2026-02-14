@@ -1,6 +1,7 @@
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Repositories;
 using ShevaTahanotNotifier.Exceptions;
+using ShevaTahanotNotifier.Services;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using User = ShevaTahanotNotifier.Database.Entities.User;
@@ -14,15 +15,15 @@ public class DisableNotificationCallbackHandler : ICallbackHandler
     private readonly ILogger<DisableNotificationCallbackHandler> _logger;
     private readonly ITelegramBotClient _bot;
     private readonly ITelegramUserRepository _telegramUserRepository;
-    private readonly INotificationScheduleRepository _notificationScheduleRepository;
+    private readonly INotificationScheduleService _notificationScheduleService;
 
     public DisableNotificationCallbackHandler(ILogger<DisableNotificationCallbackHandler> logger, ITelegramBotClient bot, ITelegramUserRepository telegramUserRepository,
-        INotificationScheduleRepository notificationScheduleRepository)
+        INotificationScheduleService notificationScheduleService)
     {
         _logger = logger;
         _bot = bot;
         _telegramUserRepository = telegramUserRepository;
-        _notificationScheduleRepository = notificationScheduleRepository;
+        _notificationScheduleService = notificationScheduleService;
     }
 
     public string CallbackPrefix => CallbackName;
@@ -61,7 +62,7 @@ public class DisableNotificationCallbackHandler : ICallbackHandler
         }
 
         _logger.LogDebug("Disabling notification {NotificationId}", notificationId);
-        await DisableNotificationAsync(notificationId, cancellationToken);
+        await _notificationScheduleService.DisableAsync(notificationId, cancellationToken);
         _logger.LogDebug("Notification {NotificationId} was disabled", notificationId);
 
         return (await _bot.EditMessageText(chatId: chatId, messageId: messageId, text: "Disabled notification.", cancellationToken: cancellationToken), null);
@@ -93,15 +94,5 @@ public class DisableNotificationCallbackHandler : ICallbackHandler
         }
 
         return (chatId, notificationId);
-    }
-
-    private async Task DisableNotificationAsync(Guid notificationId, CancellationToken cancellationToken)
-    {
-        NotificationSchedule? notification = await _notificationScheduleRepository.GetByIdAsync(notificationId, tracking: true, cancellationToken);
-        if (notification is not null)
-        {
-            notification.Enabled = false;
-            await _notificationScheduleRepository.UpdateAsync(notification, saveChanges: true, cancellationToken); 
-        }
     }
 }

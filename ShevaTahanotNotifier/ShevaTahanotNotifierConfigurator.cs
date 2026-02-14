@@ -1,11 +1,12 @@
+using Coravel;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
-using Newtonsoft.Json;
 using Serilog;
 using ShevaTahanotNotifier.BackgroundServices;
 using ShevaTahanotNotifier.Configuration;
+using ShevaTahanotNotifier.Coravel;
 using ShevaTahanotNotifier.Database;
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Repositories;
@@ -38,12 +39,12 @@ public class ShevaTahanotNotifierConfigurator
 
         AddSerilog(services, configuration);
         AddDatabase(services);
-        AddControllersWithNewtonsoftJson(services);
         AddOpenApi(services);
         AddOptions(services, configuration);
         AddNotifiers(services);
         AddServices(services);
         AddBackgroundServices(services);
+        AddCoravel(services);
         services.AddHttpClient();
         services.AddHybridCache(options => options.DefaultEntryOptions = new HybridCacheEntryOptions
         {
@@ -55,7 +56,7 @@ public class ShevaTahanotNotifierConfigurator
 
     private static void AddDatabase(IServiceCollection services)
     {
-        services.AddDbContext<NotifierContext>();
+        services.AddDbContext<NotifierContext>(options => options.UseLazyLoadingProxies());
         AddRepositories(services);
     }
 
@@ -75,11 +76,6 @@ public class ShevaTahanotNotifierConfigurator
         services.AddScoped<IConversationRepository, ConversationRepository>();
     }
 
-    private static void AddControllersWithNewtonsoftJson(IServiceCollection services)
-    {
-        services.AddControllers().AddNewtonsoftJson(options => { options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore; });
-    }
-
     private static void AddOpenApi(IServiceCollection services)
     {
         services.AddOpenApi(options => { options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1; });
@@ -94,7 +90,9 @@ public class ShevaTahanotNotifierConfigurator
 
     private static void AddNotifiers(IServiceCollection services)
     {
-        services.AddScoped<INotifierService, TelegramNotifierService>();
+        services.AddScoped<INotifierManager, NotifierManager>();
+
+        services.AddScoped<INotificationProviderService, TelegramNotificationProviderService>();
     }
 
     private static void AddServices(IServiceCollection services)
@@ -103,11 +101,19 @@ public class ShevaTahanotNotifierConfigurator
         services.AddScoped<IBridgeStatusFetcher, HtmlBridgeStatusFetcher>();
         services.AddScoped<IBridgeStatusService, BridgeStatusService>();
         services.AddScoped<IAdminUserValidatorService, AdminUserValidatorService>();
+        services.AddScoped<INotificationScheduleService, NotificationScheduleService>();
     }
 
     private static void AddBackgroundServices(IServiceCollection services)
     {
         services.AddHostedService<BackgroundBridgeStatusPollingService>();
+    }
+
+    private static void AddCoravel(IServiceCollection services)
+    {
+        services.AddScoped<ICoravelService, CoravelService>();
+        services.AddScheduler();
+        // services.AddScoped<NotifierInvocable>();
     }
 
     private static void AddSerilog(IServiceCollection services, ConfigurationManager configuration)
@@ -168,11 +174,11 @@ public class ShevaTahanotNotifierConfigurator
         WebApplication app = builder.Build();
 
         app.MapOpenApi();
-        app.MapControllers();
         app.UseHttpsRedirection();
         app.UseSerilogRequestLogging();
 
         await RunMigrationsAsync(app.Services, cancellationToken);
+        await InitializeCoravelAsync(app.Services, cancellationToken);
         return app;
     }
 
@@ -189,5 +195,11 @@ public class ShevaTahanotNotifierConfigurator
             var logger = services.GetRequiredService<ILogger<Program>>();
             logger.LogError(ex, "An error occurred while migrating the database");
         }
+    }
+
+    private static async Task InitializeCoravelAsync(IServiceProvider services, CancellationToken cancellationToken)
+    {
+        var coravelService = services.CreateAsyncScope().ServiceProvider.GetRequiredService<ICoravelService>();
+        await coravelService.InitializeAsync(cancellationToken);
     }
 }
