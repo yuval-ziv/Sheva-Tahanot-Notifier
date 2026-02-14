@@ -17,5 +17,6 @@ RUN dotnet publish "./ShevaTahanotNotifier.csproj" -c $BUILD_CONFIGURATION -o /a
 
 FROM base AS final
 WORKDIR /app
+RUN mkdir -p ./data
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "ShevaTahanotNotifier.dll"]
