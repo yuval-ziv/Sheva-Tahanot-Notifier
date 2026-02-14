@@ -1,6 +1,6 @@
 using Telegram.Bot.Types;
 
-namespace ShevaTahanotNotifier.Telegram.ConversationHandlers;
+namespace ShevaTahanotNotifier.Telegram;
 
 public interface IFreeTextMessageHandler
 {

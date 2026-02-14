@@ -6,7 +6,7 @@ public class InvalidCallbackData : Exception
     {
     }
 
-    public InvalidCallbackData(string? message) : base(message)
+    protected InvalidCallbackData(string? message) : base(message)
     {
     }
 }

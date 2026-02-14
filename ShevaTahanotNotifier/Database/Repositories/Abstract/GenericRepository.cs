@@ -62,7 +62,7 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : Bas
 
     public async Task<ICollection<T>> CreateAsync(IEnumerable<T> entities, bool saveChanges = true, CancellationToken cancellationToken = default)
     {
-        var entitiesArray = entities.ToCollection();
+        ICollection<T> entitiesArray = entities.ToCollection();
         await DbSet.AddRangeAsync(entitiesArray, cancellationToken);
         if (saveChanges)
         {
@@ -85,7 +85,7 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : Bas
 
     public async Task<ICollection<T>> UpdateAsync(IEnumerable<T> entities, bool saveChanges = true, CancellationToken cancellationToken = default)
     {
-        var entitiesArray = entities.ToCollection();
+        ICollection<T> entitiesArray = entities.ToCollection();
         DbSet.UpdateRange(entitiesArray);
         if (saveChanges)
         {
@@ -121,7 +121,7 @@ public abstract class GenericRepository<T> : IGenericRepository<T> where T : Bas
 
     public Task DeleteAsync(IEnumerable<Guid> ids, bool saveChanges = true, CancellationToken cancellationToken = default)
     {
-        var entities = GetByIds(ids);
+        IQueryable<T> entities = GetByIds(ids);
         return DeleteAsync(entities, saveChanges, cancellationToken);
     }
 

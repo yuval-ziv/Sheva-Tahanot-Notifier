@@ -8,7 +8,6 @@ namespace ShevaTahanotNotifier.Telegram.CommandHandlers;
 
 public class RefreshCommandHandler : AbstractAdminCommandHandler, ICommandHandler
 {
-    private const bool ManualRefresh = true;
     private readonly IBridgeStatusService _bridgeStatusService;
 
     public RefreshCommandHandler(ILogger<RefreshCommandHandler> logger, ITelegramBotClient bot, IAdminUserValidatorService adminUserValidatorService, IBridgeStatusService bridgeStatusService)

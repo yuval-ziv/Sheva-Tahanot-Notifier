@@ -22,6 +22,7 @@ public class BridgeStatusService : IBridgeStatusService
 
     public async Task<BridgeStatus> GetLastBridgeStatusAsync(bool skipCache = false, bool isManualRefresh = false, CancellationToken cancellationToken = default)
     {
+        skipCache = skipCache ||  isManualRefresh;
         if (!skipCache)
         {
             _logger.LogDebug("Fetching last bridge status from cache");

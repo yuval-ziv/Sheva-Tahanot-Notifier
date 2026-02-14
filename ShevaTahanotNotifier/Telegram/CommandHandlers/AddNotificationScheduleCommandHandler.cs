@@ -41,7 +41,7 @@ public class AddNotificationScheduleCommandHandler : ICommandHandler
 
         IEnumerable<InlineKeyboardButton> buttons = Day.GetValues().Select(day => ToButton(chatId, day));
 
-        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup()
+        var keyboard = new InlineKeyboardMarkup
         {
             InlineKeyboard = buttons.Chunk(2),
         };

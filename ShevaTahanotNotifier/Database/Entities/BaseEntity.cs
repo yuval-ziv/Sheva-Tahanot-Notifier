@@ -7,5 +7,5 @@ public abstract class BaseEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
-    public Guid Id { get; init; } = Guid.CreateVersion7();
+    public Guid Id { get; } = Guid.CreateVersion7();
 }

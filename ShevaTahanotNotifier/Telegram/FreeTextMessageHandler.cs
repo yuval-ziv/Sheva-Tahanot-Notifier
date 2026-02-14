@@ -1,9 +1,10 @@
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Repositories;
 using ShevaTahanotNotifier.Telegram.CommandHandlers;
+using ShevaTahanotNotifier.Telegram.ConversationHandlers;
 using Telegram.Bot.Types;
 
-namespace ShevaTahanotNotifier.Telegram.ConversationHandlers;
+namespace ShevaTahanotNotifier.Telegram;
 
 public class FreeTextMessageHandler : IFreeTextMessageHandler
 {

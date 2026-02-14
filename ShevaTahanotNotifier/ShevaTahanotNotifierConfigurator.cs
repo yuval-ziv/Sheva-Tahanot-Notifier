@@ -23,7 +23,7 @@ using Telegram.Bot.Polling;
 
 namespace ShevaTahanotNotifier;
 
-public class ShevaTahanotNotifierConfigurator
+public static class ShevaTahanotNotifierConfigurator
 {
     public static async Task<WebApplication> ConfigureAsync(WebApplicationBuilder builder, CancellationToken cancellationToken = default)
     {

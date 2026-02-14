@@ -1,5 +1,3 @@
 namespace ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
 
-public interface IAdminCommandHandler : ICommandHandler
-{
-}
+public interface IAdminCommandHandler : ICommandHandler;
