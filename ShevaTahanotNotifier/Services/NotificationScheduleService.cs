@@ -47,6 +47,7 @@ public class NotificationScheduleService : INotificationScheduleService
             notification.Enabled = false;
             await _notificationScheduleRepository.UpdateAsync(notification, saveChanges: true, cancellationToken);
         }
+
         _coravelService.Deregister(notificationScheduleId);
     }
 }

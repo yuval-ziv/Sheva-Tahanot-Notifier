@@ -1,12 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Repositories;
-using ShevaTahanotNotifier.Telegram.CallbackHandlers;
 using ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 using User = ShevaTahanotNotifier.Database.Entities.User;
 
 namespace ShevaTahanotNotifier.Telegram.CommandHandlers;
@@ -50,9 +47,9 @@ public class ListNotificationScheduleCommandHandler : ICommandHandler
             .OrderByDescending(schedule => schedule.Enabled)
             .ThenBy(schedule => schedule.Day)
             .ThenBy(schedule => schedule.Hour)
-            .ThenBy(schedule => schedule.Minute) 
+            .ThenBy(schedule => schedule.Minute)
             .Select(schedule => $"• {schedule.ButtonText}");
-        
+
         var text = $"Your notification schedules:{Environment.NewLine}{string.Join(Environment.NewLine, notificationSchedules)}";
 
         return await _bot.SendMessage(chatId, text, cancellationToken: cancellationToken);

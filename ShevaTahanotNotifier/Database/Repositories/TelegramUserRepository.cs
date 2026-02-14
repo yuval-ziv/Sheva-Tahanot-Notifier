@@ -10,14 +10,14 @@ public class TelegramUserRepository : UserRepository, ITelegramUserRepository
     public TelegramUserRepository(NotifierContext context) : base(context)
     {
     }
-    
+
     public IQueryable<User> GetAllByChatId(long chatId, bool tracking = false)
     {
         return GetAll(tracking)
             .Where(user => user.Provider == NotificationProvider.Telegram)
             .Where(user => ((TelegramNotificationProviderConfiguration)user.Configuration!).ChatId == chatId);
     }
-    
+
     public Task<User?> GetByChatIdAsync(long chatId, bool tracking = false, CancellationToken cancellationToken = default)
     {
         return GetAllByChatId(chatId, tracking)

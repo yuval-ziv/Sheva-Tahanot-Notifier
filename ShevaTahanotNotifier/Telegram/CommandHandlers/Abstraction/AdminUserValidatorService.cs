@@ -3,11 +3,6 @@ using ShevaTahanotNotifier.Configuration;
 
 namespace ShevaTahanotNotifier.Telegram.CommandHandlers.Abstraction;
 
-public interface IAdminUserValidatorService
-{
-    bool IsAdmin(long chatId);
-}
-
 public class AdminUserValidatorService : IAdminUserValidatorService
 {
     private readonly TelegramBotOptions _options;

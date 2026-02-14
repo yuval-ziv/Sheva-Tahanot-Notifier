@@ -49,7 +49,7 @@ public class NotifierContext : DbContext
         modelBuilder.Entity<BaseNotificationProviderConfiguration>().UseTpcMappingStrategy();
         modelBuilder.Entity<TelegramNotificationProviderConfiguration>().ToTable(nameof(TelegramNotificationProviderConfiguration));
         modelBuilder.Entity<EmailNotificationProviderConfiguration>().ToTable(nameof(EmailNotificationProviderConfiguration));
-        
+
         modelBuilder.Entity<Conversation>().ToTable(nameof(Conversation)).OwnsOne(conversation => conversation.ExtraData, builder => builder.ToJson());
     }
 }

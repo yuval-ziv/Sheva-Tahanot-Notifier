@@ -5,5 +5,5 @@ namespace ShevaTahanotNotifier.Database.Repositories;
 
 public interface IConversationRepository : IGenericRepository<Conversation>
 {
-    Task<Conversation?> GetByChatIdAsync(long chatId,bool tracking = false, CancellationToken cancellationToken = default);
+    Task<Conversation?> GetByChatIdAsync(long chatId, bool tracking = false, CancellationToken cancellationToken = default);
 }
