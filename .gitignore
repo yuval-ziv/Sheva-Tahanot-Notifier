@@ -58,6 +58,6 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 .idea/
-ShevaTahanotNotifier/Logs/
-ShevaTahanotNotifier/appsettings.Development.json
-ShevaTahanotNotifier/ShevaTahanotNotifier.db*
+**/Logs/
+**/appsettings.Development.json
+**/ShevaTahanotNotifier.db*
