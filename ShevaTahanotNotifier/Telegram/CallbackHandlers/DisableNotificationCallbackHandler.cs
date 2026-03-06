@@ -48,11 +48,19 @@ public class DisableNotificationCallbackHandler : ICallbackHandler
             return (await _bot.SendMessage(chatId, "You are not registered! Please register and try again.", cancellationToken: cancellationToken), null);
         }
 
-        (long callbackDataChatId, Guid notificationId) = ParseCallbackData(callback.Data);
+        (long callbackDataChatId, Guid notificationId, bool all) = ParseCallbackData(callback.Data);
 
         if (callbackDataChatId != chatId)
         {
             throw new InvalidCallbackChatId(chatId, callbackDataChatId);
+        }
+
+        if (all)
+        {
+            _logger.LogDebug("Disabling all notifications for chat {ChatId}", chatId);
+            await _notificationScheduleService.DisableAllByUserIdAsync(user.Id, cancellationToken);
+            _logger.LogDebug("All notification of chat {ChatId} were disabled", chatId);
+            return (await _bot.EditMessageText(chatId: chatId, messageId: messageId, text: "Disabled all notifications.", cancellationToken: cancellationToken), null);
         }
 
         if (notificationId == Guid.Empty)
@@ -68,7 +76,7 @@ public class DisableNotificationCallbackHandler : ICallbackHandler
         return (await _bot.EditMessageText(chatId: chatId, messageId: messageId, text: "Disabled notification.", cancellationToken: cancellationToken), null);
     }
 
-    private (long callbackDataChatId, Guid notificationId) ParseCallbackData(string? callbackData)
+    private (long callbackDataChatId, Guid notificationId, bool all) ParseCallbackData(string? callbackData)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(callbackData);
         string callbackActualData = callbackData.Replace(CallbackPrefix + "_", string.Empty);
@@ -85,7 +93,12 @@ public class DisableNotificationCallbackHandler : ICallbackHandler
 
         if (parts[1] == "cancel")
         {
-            return (chatId, Guid.Empty);
+            return (chatId, Guid.Empty, false);
+        }
+
+        if (parts[1] == "all")
+        {
+            return (chatId, Guid.Empty, true);
         }
 
         if (!Guid.TryParse(parts[1], out Guid notificationId))
@@ -93,6 +106,6 @@ public class DisableNotificationCallbackHandler : ICallbackHandler
             throw new InvalidCallbackData($"{CallbackPrefix}_{{chat id}}_{{notification id}}", $"notification id wasn't a {nameof(Guid)}");
         }
 
-        return (chatId, notificationId);
+        return (chatId, notificationId, false);
     }
 }

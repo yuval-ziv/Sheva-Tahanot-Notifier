@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ShevaTahanotNotifier.Coravel;
 using ShevaTahanotNotifier.Database.Entities;
 using ShevaTahanotNotifier.Database.Repositories;
@@ -49,5 +50,39 @@ public class NotificationScheduleService : INotificationScheduleService
         }
 
         _coravelService.Deregister(notificationScheduleId);
+    }
+
+    public async Task EnableAllByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        List<NotificationSchedule> notifications = await _notificationScheduleRepository.GetAll(tracking: true).Where(notification => notification.UserId == userId).ToListAsync(cancellationToken: cancellationToken);
+        if (notifications.Count == 0)
+        {
+            return;
+        }
+        notifications.ForEach(notification =>
+        {
+            notification.Enabled = true;
+            _coravelService.Deregister(notification.Id);
+        });
+        
+        await _notificationScheduleRepository.UpdateAsync(notifications, cancellationToken: cancellationToken);
+    }
+
+    public async Task DisableAllByUserIdAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        List<NotificationSchedule> notifications = await _notificationScheduleRepository.GetAll(tracking: true).Where(notification => notification.UserId == userId)
+            .ToListAsync(cancellationToken: cancellationToken);
+        if (notifications.Count == 0)
+        {
+            return;
+        }
+
+        notifications.ForEach(notification =>
+        {
+            notification.Enabled = false;
+            _coravelService.Register(notification);
+        });
+
+        await _notificationScheduleRepository.UpdateAsync(notifications, cancellationToken: cancellationToken);
     }
 }

@@ -57,7 +57,7 @@ public class DisableNotificationScheduleCommandHandler : ICommandHandler
 
         InlineKeyboardMarkup keyboard = new()
         {
-            InlineKeyboard = buttons.Chunk(2).Prepend(GetCancelButton(chatId)),
+            InlineKeyboard = buttons.Chunk(2).Prepend(GetAllButton(chatId)).Prepend(GetCancelButton(chatId)),
         };
         return await _bot.SendMessage(chatId, "Choose a notification to disable", replyMarkup: keyboard, cancellationToken: cancellationToken);
     }
@@ -79,6 +79,18 @@ public class DisableNotificationScheduleCommandHandler : ICommandHandler
             {
                 Text = "Cancel",
                 CallbackData = $"{DisableNotificationCallbackHandler.CallbackName}_{chatId}_cancel",
+            },
+        ];
+    }
+
+    private InlineKeyboardButton[] GetAllButton(long chatId)
+    {
+        return
+        [
+            new InlineKeyboardButton
+            {
+                Text = "All",
+                CallbackData = $"{DisableNotificationCallbackHandler.CallbackName}_{chatId}_all",
             },
         ];
     }
