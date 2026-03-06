@@ -14,7 +14,6 @@ public class CoravelService : ICoravelService
     private readonly Scheduler _scheduler;
     private readonly IServiceProvider _services;
     private readonly INotificationScheduleRepository _notificationScheduleRepository;
-    private TimeZoneInfo _israelTimeZone;
 
     public CoravelService(ILogger<CoravelService> logger, IScheduler scheduler, IServiceProvider services, INotificationScheduleRepository notificationScheduleRepository)
     {
@@ -27,20 +26,6 @@ public class CoravelService : ICoravelService
         _scheduler = baseScheduler;
         _services = services;
         _notificationScheduleRepository = notificationScheduleRepository;
-        _israelTimeZone = GetIsraelTimeZoneOrLocal();
-    }
-
-    private TimeZoneInfo GetIsraelTimeZoneOrLocal()
-    {
-        if (TimeZoneInfo.TryFindSystemTimeZoneById("Asia/Jerusalem", out var israelTimeZone))
-        {
-            return israelTimeZone;
-        }
-        else
-        {
-            _logger.LogError("Failed to get Israel's time zone, falling back to local with utc offset {UtcOffset}", _israelTimeZone.BaseUtcOffset);
-            return TimeZoneInfo.Local;
-        }
     }
 
     public void Register(NotificationSchedule schedule)
@@ -49,7 +34,7 @@ public class CoravelService : ICoravelService
         _logger.LogDebug("Registering coravel schedule for notification schedule {NotificationScheduleId} with cron {Cron} for user {UserId}", schedule.Id, cron, schedule.UserId);
 
         IScheduledEventConfiguration eventConfiguration = _scheduler.ScheduleWithParams<NotifierInvocable>(_services.CreateAsyncScope(), schedule.Id)
-            .Cron(cron).Zoned(_israelTimeZone);
+            .Cron(cron).Zoned(TimeZoneInfo.Local);
         (eventConfiguration as ScheduledEvent)?.AssignUniqueIndentifier(schedule.Id.ToString());
         _logger.LogDebug("Registered coravel schedule for notification schedule {NotificationScheduleId} with cron {Cron} for user {UserId}", schedule.Id, cron, schedule.UserId);
     }
