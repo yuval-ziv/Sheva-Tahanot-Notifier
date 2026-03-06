@@ -8,6 +8,6 @@ public class BridgeStatus : BaseEntity
 
     public string ToNotificationString()
     {
-        return $"Bridge is currently {(IsOpen ? string.Empty : "not ")}open (last updated {LastUpdated:dd.MM.yyyy HH:mm:ss})";
+        return $"Bridge is currently {(IsOpen ? string.Empty : "not ")}open (last updated {LastUpdated.ToLocalTime():dd.MM.yyyy HH:mm:ss})";
     }
 }
