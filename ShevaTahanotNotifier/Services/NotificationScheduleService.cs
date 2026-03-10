@@ -62,7 +62,7 @@ public class NotificationScheduleService : INotificationScheduleService
         notifications.ForEach(notification =>
         {
             notification.Enabled = true;
-            _coravelService.Deregister(notification.Id);
+            _coravelService.Register(notification);
         });
         
         await _notificationScheduleRepository.UpdateAsync(notifications, cancellationToken: cancellationToken);
@@ -80,7 +80,7 @@ public class NotificationScheduleService : INotificationScheduleService
         notifications.ForEach(notification =>
         {
             notification.Enabled = false;
-            _coravelService.Register(notification);
+            _coravelService.Deregister(notification.Id);
         });
 
         await _notificationScheduleRepository.UpdateAsync(notifications, cancellationToken: cancellationToken);
