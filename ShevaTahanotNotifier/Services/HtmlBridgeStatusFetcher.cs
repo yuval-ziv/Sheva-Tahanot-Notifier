@@ -24,7 +24,7 @@ public class HtmlBridgeStatusFetcher : IBridgeStatusFetcher
         var document = new HtmlDocument();
         document.LoadHtml(html);
 
-        HtmlNode bridgeStatusNode = document.DocumentNode.SelectSingleNode(_options.StatusElementXpathSelector);
+        HtmlNode? bridgeStatusNode = document.DocumentNode.SelectSingleNode(_options.StatusElementXpathSelector);
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract - SelectSingleNode can be null 
         if (bridgeStatusNode is null)
         {
